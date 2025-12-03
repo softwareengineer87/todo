@@ -4,8 +4,7 @@ Uma empresa quer melhorar a produtividade de seus funcionários, ela pediu um si
 para ter mais controle das atividades no dia a dia.
 
 # Funcionalidades
-  - Criar tarefa com title, description, category, priority(low, medium, high), date, completed
-  - Editar tarefa
+  - Criar tarefa com title, description, priority(low, medium, high), date, completed
   - Remover tarefa
   - Listar tarefas em áreas diferentes filtrando comcluidas e não comcluidas
   - Criar campo de pesquisa de tarefa

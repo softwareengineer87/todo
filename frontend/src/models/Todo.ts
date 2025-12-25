@@ -9,3 +9,14 @@ export type Todo = {
   date: string;
 }
 
+type Pagination = {
+  actualPage: number;
+  lastPage: number;
+  totalItems: number;
+}
+
+export type Data = {
+  data: Todo[];
+  pagination: Pagination;
+}
+

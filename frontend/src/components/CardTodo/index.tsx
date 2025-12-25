@@ -19,19 +19,12 @@ function CardTodo({
   deleteTodo
 }: CardTodoProps) {
 
-  function formatDate(date: Date) {
-    return Intl.DateTimeFormat('pt-br', {
-      dateStyle: 'short'
-    }).format(date)
-  }
-
   function checkExpiration() {
     const now = Date.now();
-    return new Date(todo.date).getTime() < now;
+    return now > new Date(todo.date).getTime();
   }
 
-  const [date, _] = todo.date.split('T');
-  const dt = new Date(date);
+  const dt = new Date(todo.date);
 
   useEffect(() => {
     checkExpiration();
@@ -41,7 +34,7 @@ function CardTodo({
     <div className={`completed ${checkExpiration() && 'is-expiration'}`}>
       <div className='box-top'>
         <h4>{todo.title}</h4>
-        <span>{formatDate(dt)}</span>
+        <span>{dt.toLocaleDateString()}</span>
         <p className={`priority 
           ${todo.priority === 'low' ? 'low' : todo.priority === 'medium' ? 'medium' : 'high'}`}
         >

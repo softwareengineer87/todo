@@ -3,16 +3,20 @@
 import { FormTodo } from '@/components/FormTodo';
 import './page.css';
 import { useEffect, useState } from 'react';
-import { Todo } from '@/models/Todo';
+import { Data, Todo } from '@/models/Todo';
 import { useTodo } from '@/data/hooks/useTodo';
 import { baseURL } from '@/utils/baseUrl';
 import { CardTodo } from '@/components/CardTodo';
+import { IconChevronCompactLeft, IconChevronCompactRight } from '@tabler/icons-react';
+import { Pagination } from '@/models/Pagination';
 
 export default function Home() {
 
   const [todo, setTodo] = useState<Todo>({} as Todo);
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [data, setData] = useState<Data>({} as Data);
   const [active, setActive] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [pagination, setPagination] = useState<Pagination>({} as Pagination);
 
   const {
     saveTodo,
@@ -20,6 +24,16 @@ export default function Home() {
     deleteTodo,
     changeCompleted
   } = useTodo();
+
+  function createArray(n: number) {
+    return Array.from({ length: n }, (_, i) => i + 1);
+  }
+
+  async function changePage(page: number) {
+    setPage(page);
+    console.log(page);
+    await getTodos();
+  }
 
   function showMessage() {
     setActive(true);
@@ -30,9 +44,10 @@ export default function Home() {
 
   async function getTodos() {
     try {
-      const response = await fetch(`${baseURL}/todos`);
+      const response = await fetch(`${baseURL}/todos?page=${page}`);
       const data = await response.json();
-      setTodos(data);
+      setData(data);
+      setPagination(data.pagination);
     } catch (error) {
       console.error(error);
     }
@@ -61,7 +76,8 @@ export default function Home() {
 
   useEffect(() => {
     getTodos();
-  }, [getTodos]);
+    console.log(page);
+  }, [setPage]);
 
   return (
     <main className='container-main container'>
@@ -76,9 +92,9 @@ export default function Home() {
       <div className='box-todos'>
         <div className='card-todo'>
           <h3>Tarefas por fazer</h3>
-          {todos.filter((t) => t.completed === false).length === 0 ? (
+          {data.data?.filter((t) => t.completed === false).length === 0 ? (
             <p>Sem tarefas</p>
-          ) : todos.filter((t) => t.completed === false)
+          ) : data.data?.filter((t) => t.completed === false)
             .map((todo) => (
               <CardTodo
                 todo={todo}
@@ -89,9 +105,9 @@ export default function Home() {
         </div>
         <div className='card-todo'>
           <h3>Tarefas completas</h3>
-          {todos.filter((t) => t.completed).length === 0 ? (
+          {data.data?.filter((t) => t.completed).length === 0 ? (
             <p>Sem tarefas</p>
-          ) : todos.filter((t) => t.completed)
+          ) : data.data?.filter((t) => t.completed)
             .map((todo) => (
               <CardTodo
                 todo={todo}
@@ -101,6 +117,38 @@ export default function Home() {
             ))}
         </div>
       </div>
+      <section className='pagination'>
+        {pagination.actualPage >= 2 && (
+          <button
+            onClick={() => changePage(pagination.actualPage - 1)}
+            className='icon'>
+            <IconChevronCompactLeft size={25} />
+          </button>
+        )}
+        <div className='numbers'>
+          <p
+            onClick={() => changePage(pagination.prevPage)}>
+            {pagination.prevPage !== pagination.actualPage && pagination.prevPage}
+          </p>
+          <p
+            className={`${pagination.actualPage && 'active'}`}
+            onClick={() => changePage(pagination.actualPage)}>
+            {pagination.actualPage}
+          </p>
+          <p
+            className={`${pagination.actualPage === pagination.lastPage && 'active'}`}
+            onClick={() => changePage(pagination.nextPage)}>
+            {pagination.nextPage !== pagination.actualPage && pagination.nextPage}
+          </p>
+        </div>
+        {pagination.actualPage !== pagination.lastPage && (
+          <button
+            onClick={() => changePage(pagination.actualPage + 1)}
+            className='icon'>
+            <IconChevronCompactRight size={25} />
+          </button>
+        )}
+      </section>
     </main>
   );
 }
